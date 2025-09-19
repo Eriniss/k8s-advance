@@ -1,0 +1,16 @@
+# pod.yaml
+apiVersion: v1
+kind: Pod
+metadata:
+  name: storage-test-pod
+spec:
+  containers:
+    - name: test-container
+      image: nginx
+      volumeMounts:
+        - mountPath: /usr/share/nginx/html # nginx의 기본 웹 루트에 볼륨 연결
+          name: my-storage
+  volumes:
+    - name: my-storage
+      persistentVolumeClaim:
+        claimName: rbd-pvc # 1단계에서 만든 PVC 이름

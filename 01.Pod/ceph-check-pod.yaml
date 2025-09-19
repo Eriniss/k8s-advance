@@ -1,0 +1,18 @@
+# pod-checker.yaml
+apiVersion: v1
+kind: Pod
+metadata:
+  name: storage-checker-pod # 이전과 다른 Pod 이름
+spec:
+  containers:
+    - name: checker-container
+      image: busybox
+      command: ["/bin/sh", "-c", "sleep 3600"]
+      volumeMounts:
+        - mountPath: /data # 컨테이너 내부의 /data 경로에 연결
+          name: my-storage
+  volumes:
+    - name: my-storage
+      persistentVolumeClaim:
+        claimName: rbd-pvc # <-- 데이터를 담고 있는 기존 PVC
+        
