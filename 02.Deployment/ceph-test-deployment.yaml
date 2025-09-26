@@ -1,0 +1,28 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nginx-ceph-deployment
+  labels:
+    app: nginx-ceph
+spec:
+  replicas: 1 # 고가용성(HA)을 위한 복제본 수
+  selector:
+    matchLabels:
+      app: nginx-ceph
+  template:
+    metadata:
+      labels:
+        app: nginx-ceph
+    spec:
+      containers:
+      - name: nginx
+        image: nginx:latest
+        ports:
+        - containerPort: 80
+        volumeMounts:
+        - name: my-storage
+          mountPath: /usr/share/nginx/html # Nginx 기본 웹 콘텐츠 경로에 Ceph 볼륨 마운트
+      volumes:
+      - name: my-storage
+        persistentVolumeClaim:
+          claimName: rbd-pvc # PVC 이름 (사용자가 생성한 rbd-pvc와 연결)
