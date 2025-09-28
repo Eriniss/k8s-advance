@@ -51,7 +51,7 @@ global:
   edition: ee
 
   ## https://docs.gitlab.com/charts/charts/globals#gitlab-version
-  gitlabVersion: "18.3.1"
+  gitlabVersion: "18.4.1"
 
   ## https://docs.gitlab.com/charts/charts/globals#application-resource
   application:
@@ -60,13 +60,13 @@ global:
     allowClusterRoles: true
   ## https://docs.gitlab.com/charts/charts/globals#configure-host-settings
   hosts:
-    domain: p-e.kr
+    domain: hanrara.p-e.kr
     hostSuffix:
     https: true
     externalIP:
     ssh:
     gitlab:
-      name: g20-score-board.p-e.kr
+      name: hanrara.p-e.kr
       https: false
     minio: {}
     registry: {}
@@ -1414,34 +1414,34 @@ shared-secrets:
 ## See dependencies in Chart.yaml for current version
 gitlab-runner:
   install: false
-#  rbac:
-#    create: true
-#  runners:
-#    locked: false
+  rbac:
+    create: true
+  runners:
+    locked: false
     # Set secret to an arbitrary value because the runner chart renders the gitlab-runner.secret template only if it is not empty.
     # The parent/GitLab chart overrides the template to render the actual secret name.
-#    secret: "nonempty"
-#    config: |
-#      [[runners]]
-#        [runners.kubernetes]
-#        image = "ubuntu:22.04"
-#        {{- if .Values.global.minio.enabled }}
-#        [runners.cache]
-#          Type = "s3"
-#          Path = "gitlab-runner"
-#          Shared = true
-#          [runners.cache.s3]
-#            ServerAddress = {{ include "gitlab-runner.cache-tpl.s3ServerAddress" . }}
-#            BucketName = "runner-cache"
-#            BucketLocation = "us-east-1"
-#            Insecure = false
-#        {{ end }}
-#  podAnnotations:
-#    gitlab.com/prometheus_scrape: "true"
-#    gitlab.com/prometheus_port: 9252
-#  podSecurityContext:
-#    seccompProfile:
-#      type: "RuntimeDefault"
+    secret: "nonempty"
+    config: |
+      [[runners]]
+        [runners.kubernetes]
+        image = "ubuntu:22.04"
+        {{- if .Values.global.minio.enabled }}
+        [runners.cache]
+          Type = "s3"
+          Path = "gitlab-runner"
+          Shared = true
+          [runners.cache.s3]
+            ServerAddress = {{ include "gitlab-runner.cache-tpl.s3ServerAddress" . }}
+            BucketName = "runner-cache"
+            BucketLocation = "us-east-1"
+            Insecure = false
+        {{ end }}
+  podAnnotations:
+    gitlab.com/prometheus_scrape: "true"
+    gitlab.com/prometheus_port: 9252
+  podSecurityContext:
+    seccompProfile:
+      type: "RuntimeDefault"
 
 traefik:
   install: false
