@@ -1,0 +1,7 @@
+apiVersion: storage.k8s.io/v1
+kind: StorageClass
+metadata:
+  name: my-local-storage # 원하는 스토리지 클래스 이름
+provisioner: rancher.io/local-path # 1단계에서 설치한 프로비저너 이름
+volumeBindingMode: WaitForFirstConsumer
+reclaimPolicy: Delete
