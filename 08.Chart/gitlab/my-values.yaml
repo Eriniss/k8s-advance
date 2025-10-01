@@ -26,6 +26,8 @@
 global:
   common:
     labels: {}
+  
+  storageClass: "rook-ceph-block"
 
   image: {}
     # Registry value override is only available for the following Charts:
@@ -51,7 +53,7 @@ global:
   edition: ee
 
   ## https://docs.gitlab.com/charts/charts/globals#gitlab-version
-  gitlabVersion: "18.3.1"
+  gitlabVersion: "18.4.1"
 
   ## https://docs.gitlab.com/charts/charts/globals#application-resource
   application:
@@ -60,14 +62,12 @@ global:
     allowClusterRoles: true
   ## https://docs.gitlab.com/charts/charts/globals#configure-host-settings
   hosts:
-    domain: p-e.kr
+    domain: internal
     hostSuffix:
     https: true
-    externalIP: "192.168.219.91"
+    externalIP: 192.168.219.91
     ssh:
-    gitlab:
-      name: hanrara.p-e.kr
-      https: false
+    gitlab: {}
     minio: {}
     registry: {}
     tls: {}
@@ -75,6 +75,7 @@ global:
     kas: {}
     pages: {}
     openbao: {}
+    workspaces: {}
 
   ## https://docs.gitlab.com/charts/charts/globals#configure-ingress-settings
   ingress:
@@ -250,6 +251,7 @@ global:
   appConfig:
     ## https://docs.gitlab.com/charts/charts/globals#general-application-settings
     # cdnHost:
+    relativeUrlRoot: ""
     enableUsagePing: true
     enableSeatLink: true
     enableImpersonation:
@@ -510,6 +512,8 @@ global:
       # externalUrl:
       # internalUrl:
       # clientTimeoutSeconds:
+    
+    workspaces: {}
 
     ## Configure GitLab Cells. Cells is a GitLab internal-use experiment.
     ## https://docs.gitlab.com/administration/cells/
@@ -639,6 +643,10 @@ global:
       verify: true
       # secretName:
       # caSecretName:
+
+  workspaces:
+    ## If workspaces is enabled, you must provide a hostname under global.hosts
+    enabled: false
 
   ## https://docs.gitlab.com/charts/charts/gitlab/spamcheck/
   spamcheck:
@@ -983,12 +991,12 @@ certmanager-issuer:
 ## Installation of certmananger.
 ## This value replaces `certmanager.install` to allow certmanager schema validation to pass.
 ## See dependencies in Chart.yaml for current version
-# installCertmanager: true
+installCertmanager: true
 
 ## Configuration of jetstack/cert-manager
-# certmanager:
-#   installCRDs: true
-#   nameOverride: certmanager
+certmanager:
+  installCRDs: true
+  nameOverride: certmanager
 
 ## https://docs.gitlab.com/charts/charts/nginx/
 ## https://docs.gitlab.com/charts/architecture/decisions#nginx-ingress
@@ -1111,9 +1119,9 @@ haproxy:
 ## Installation & configuration of stable/prometheus
 ## See dependencies in Chart.yaml for current version
 prometheus:
-  install: true
+  install: false
   rbac:
-    create: true
+    create: false
   alertmanager:
     enabled: false
   kube-state-metrics:
@@ -1414,34 +1422,34 @@ shared-secrets:
 ## See dependencies in Chart.yaml for current version
 gitlab-runner:
   install: false
-  # rbac:
-  #   create: true
-  # runners:
-  #   locked: false
+  rbac:
+    create: false
+  runners:
+    locked: false
     # Set secret to an arbitrary value because the runner chart renders the gitlab-runner.secret template only if it is not empty.
     # The parent/GitLab chart overrides the template to render the actual secret name.
-  #   secret: "nonempty"
-  #   config: |
-  #     [[runners]]
-  #       [runners.kubernetes]
-  #       image = "ubuntu:22.04"
-  #       {{- if .Values.global.minio.enabled }}
-  #       [runners.cache]
-  #         Type = "s3"
-  #         Path = "gitlab-runner"
-  #         Shared = true
-  #         [runners.cache.s3]
-  #           ServerAddress = {{ include "gitlab-runner.cache-tpl.s3ServerAddress" . }}
-  #           BucketName = "runner-cache"
-  #           BucketLocation = "us-east-1"
-  #           Insecure = false
-  #       {{ end }}
-  # podAnnotations:
-  #   gitlab.com/prometheus_scrape: "true"
-  #   gitlab.com/prometheus_port: 9252
-  # podSecurityContext:
-  #   seccompProfile:
-  #     type: "RuntimeDefault"
+    secret: "nonempty"
+    config: |
+      [[runners]]
+        [runners.kubernetes]
+        image = "ubuntu:22.04"
+        {{- if .Values.global.minio.enabled }}
+        [runners.cache]
+          Type = "s3"
+          Path = "gitlab-runner"
+          Shared = true
+          [runners.cache.s3]
+            ServerAddress = {{ include "gitlab-runner.cache-tpl.s3ServerAddress" . }}
+            BucketName = "runner-cache"
+            BucketLocation = "us-east-1"
+            Insecure = false
+        {{ end }}
+  podAnnotations:
+    gitlab.com/prometheus_scrape: "true"
+    gitlab.com/prometheus_port: 9252
+  podSecurityContext:
+    seccompProfile:
+      type: "RuntimeDefault"
 
 traefik:
   install: false
@@ -1486,7 +1494,7 @@ gitlab-zoekt:
   install: false
   gateway:
     basicAuth:
-      enabled: true
+      enabled: false # Basic auth is no longer needed because we've switched to using JWT instead
       secretName: '{{ include "gitlab.zoekt.gateway.basicAuth.secretName" $ }}'
   indexer:
     internalApi:
