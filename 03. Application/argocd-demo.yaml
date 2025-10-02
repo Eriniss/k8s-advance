@@ -1,0 +1,18 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: argocd-demo-app # 애플리케이션의 고유 이름 지정
+  namespace: argocd # ArgoCD가 설치된 네임스페이스
+spec:
+  project: default # 대상 ArgoCD 프로젝트
+  source:
+    repoURL: https://github.com/Eriniss/k8s-advance.git
+    targetRevision: HEAD # 사용할 브랜치 (최신 커밋)
+    path: 09.etc # Git 저장소 내에서 YAML 파일이 위치한 경로
+  destination:
+    server: https://kubernetes.default.svc # ArgoCD가 실행되는 현재 클러스터
+    namespace: default # 매니페스트를 배포할 대상 네임스페이스
+  syncPolicy:
+    automated:
+      prune: true # Git에 없는 리소스 클러스터에서 제거
+      selfHeal: true # 클러스터 상태가 변경되면 Git 상태로 자동 복구
